@@ -1,21 +1,34 @@
+import { ResultDto } from './dto/result.dto';
 import { UserRegisterDto } from './dto/user.create.dto';
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { User } from './user.entity';
 import { UserService } from './user.service';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get()
+  @Get('list')
   async findAllt(): Promise<User[]> {
     return this.userService.findAll();
   }
 
-  @Post('cadastrar')
-  async cadastrar(@Body() data: UserRegisterDto): Promise<any> {
-    return <any>{
-      message: "Salvou";
-    }
+  @Post('register')
+  async register(@Body() data: UserRegisterDto): Promise<ResultDto> {
+    return this.userService.register(data);
+  }
+
+  @UseGuards(AuthGuard('local'))
+  @Post('login')
+  async login(@Request() req) {
+    return req.User;
   }
 }
